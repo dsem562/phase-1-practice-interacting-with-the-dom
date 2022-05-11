@@ -1,4 +1,4 @@
-let intervalID;
+let interval;
 let count = 0;
 
 const init = () => {
