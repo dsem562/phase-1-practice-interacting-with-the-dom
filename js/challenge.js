@@ -1,3 +1,6 @@
+let intervalID;
+let count = 0;
+
 const init = () => {
     
     let timer = document.getElementById("counter");
@@ -8,60 +11,104 @@ const init = () => {
     let heart = document.getElementById("heart");
     heart.addEventListener("click", like);
     const likes = document.getElementsByClassName("likes");
+    let submit = document.getElementById("submit");
+    submit.addEventListener("click", submitForm);
+    const commentsForm = document.getElementById("comment-form");
+    const commentsList = document.getElementById("list");
+    const commentsInput = document.getElementById("comment-input");
     let pause = document.getElementById("pause");
     pause.addEventListener("click", stop);
-    // let resume = document.getElementById("resume");
-    // resume.addEventListener("click", resumeFunc);
+    
+    
+    interval = setInterval(increment, 1000);
 
-    // const start = 0;
-    // let startCounter = 0;
-    let counter = 0;
-    
-    const startTimer = setInterval(function() {
-        timer.innerHTML = counter++
-    }, 1000);    
-    
-    // function count() {        
-    //     timer.innerHTML = counter++;               
-    // }
     
     function increment() {
-        timer.innerHTML = counter++;
+        timer.innerHTML = count++;
     }
 
     function decrement() {
-        timer.innerHTML = counter--;
-    }
-
-    function like(e) {
-        if(e) {
-            console.log(likes);
-        };
-    }
-
-    function stop(e) {        
-        clearInterval(startTimer);
+        timer.innerHTML = count--;
+    }   
+    
+    function stop(e) { 
+        clearInterval(interval);
+        disableBtns();
         pause.removeAttribute("id");
         e.target.innerHTML = "resume";
-        e.target.id = "resume";
-        let resume = document.getElementById("resume");
-        resume.addEventListener("click", resumeFunc);
-        // console.log(e);
-        // console.log(timer.innerHTML);
-        // console.log(counter);
+        e.target.id = "resume";        
+        pause.removeEventListener("click", stop);
+        resume.addEventListener("click", resumeFunc); 
     }
 
     function resumeFunc(e) {
-        console.log(e);
-        console.log(counter)
-        setTimeout(function() {
-            setInterval(function() {
-                timer.innerHTML = counter++
-            }, 1000), (counter * 1000)});
-            resume.removeAttribute("id");
+        interval = setInterval(increment, 1000);
+        enableBtns();
+        resume.removeEventListener("click", resumeFunc);
+        resume.removeAttribute("id");
         e.target.innerHTML = "pause";
         e.target.id = "pause";
+        pause.addEventListener("click", stop);
     }
+
+    function disableBtns() {
+        plus.disabled = true;
+        minus.disabled = true;
+        heart.disabled = true;
+        submit.disabled = true;
+    }
+    
+    function enableBtns() {
+        plus.disabled = false;
+        minus.disabled = false;
+        heart.disabled = false;
+        submit.disabled = false;
+    }
+    
+    function submitForm(e) {
+        e.preventDefault();
+        const p = document.createElement("p");
+        const text = document.createTextNode(commentsInput.value);
+        p.appendChild(text);
+        commentsList.append(p); 
+        commentsForm.reset();
+    }
+
+    // Handling Likes
+
+    let likeCounter = 0;
+    let prevNum = 0;
+    let currentNum = 0;
+    
+    function like() {
+        currentNum = parseInt(timer.innerHTML, 10);
+        processLikes(currentNum, prevNum);
+        prevNum = currentNum;
+    }
+
+    function processLikes(currentNum, prevNum) {
+        if (currentNum === prevNum) {
+            likeCounter++;
+            displayLikes();
+        } else {
+            likeCounter = 1;
+            displayLikes();
+        }
+    }
+
+    function displayLikes() {        
+        const li = document.createElement("li");        
+        if (likeCounter === 1) {            
+            const timerNum = document.createTextNode(currentNum + " has been liked 1 time.");
+            li.appendChild(timerNum);
+            likes[0].appendChild(li);
+        } else {
+            let currentNode = likes[0].childNodes.length - 1;
+            const timerNum = document.createTextNode(currentNum + " has been liked " + likeCounter + " times.");
+            li.appendChild(timerNum);
+            likes[0].replaceChild(li, likes[0].childNodes[currentNode]);
+        }
+    }    
 }
 
 document.addEventListener('DOMContentLoaded', init);
